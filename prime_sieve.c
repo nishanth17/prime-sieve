@@ -352,7 +352,7 @@ long sieve_of_atkin(long n, long* primes) {
     return pos;
 }
 
-/* This function returns the number of primes below 'n' and populates the
+/* Returns the number of primes below 'n' and populates the
  * 'primes' array. */
 long prime_sieve(long n, long* primes) {
     if (n < THRESHOLD || n > MAX)
@@ -362,18 +362,27 @@ long prime_sieve(long n, long* primes) {
 }
 
 
-int main() {
+int main(int argc, char** argv) {
     struct timeval start, end;
-    long N = 100000000l;
-    long* primes = (long*) calloc(num_primes_below(N), sizeof(long));
+    long N, i;
+    long* primes;
+    
+    N = atoi(argv[1]);
+    primes = (long*) calloc(num_primes_below(N), sizeof(long));
     
     gettimeofday(&start, NULL);
-    long t = sieve_of_atkin(N, primes);
-
+    long t = prime_sieve(N, primes);
     gettimeofday(&end, NULL);
-    printf("Number of primes below %lu: %lu\n", N, t);
+    
+    printf("\nPrimes below %lu:\n", N);
+    for (i = 0; i < t; i++) {
+        printf("%lu\n", primes[i]);
+    }
+    
+    
+    printf("\nNumber of primes below %lu: %lu\n", N, t);
     double time = (double) ((end.tv_sec  - start.tv_sec) * 1000000u +
                             end.tv_usec - start.tv_usec) / 1.e6;
-    printf("Time: %F seconds\n", time);
+    printf("Time: %F seconds\n\n", time);
     return 0;
 } 
