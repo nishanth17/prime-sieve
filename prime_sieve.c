@@ -304,7 +304,7 @@ long sieve_of_atkin(long n, long* primes) {
     
     long lim = n / 60l, L;
     long size = (B >> 5) + 1;
-    long p, p2, b, x, d, limit, j, lim1, base, s2 = (size >> 2) << 2;;
+    long p, p2, b, x, d, limit, j, lim1, base, s2 = (size >> 2) << 2;
     __m256i zero = _mm256_setzero_si256();
     
     for (i = 0; i < 16; i++)
@@ -330,7 +330,7 @@ long sieve_of_atkin(long n, long* primes) {
         for (i = 0; i < 96; i++)
             enum3(DFG3[i][1], DFG3[i][2], DFG3[i][0], L, B, segs);
         
-        // Sieve off squareful numbers
+        // Sieve off squareful numbers in parallel
         #pragma omp parallel for private(j, d, x, p, p2, b, i)
         for (i = 0; i < len; i++) {
             p = base_primes[i];
@@ -377,10 +377,13 @@ long sieve_of_atkin(long n, long* primes) {
 /* This function returns the number of primes below 'n' and populates the
  * 'primes' array. */
 long prime_sieve(long n, long* primes) {
-    if (n < THRESHOLD || n > MAX)
+    if (n < THRESHOLD)
         return sieve_of_eratosthenes(n, primes);
-    else
+    else if (n <= MAX) {
         return sieve_of_atkin(n, primes);
+    } else {
+        return segmented_sieve(2, n, primes);
+    }
 }
 
 /* A relativly simple segmented sieve of Eratosthenes to compute the primes between 'lo' and 'hi'
@@ -389,6 +392,17 @@ long prime_sieve(long n, long* primes) {
 long segmented_sieve(long lo, long hi, long* primes) {
     if (hi < lo) {
         return 0;
+    }
+    
+    if (hi < 60) {
+        long k = 0, pos = 0;
+        while (U60[k++] < lo);
+        
+        while(U60[k] <= hi) {
+            primes[pos++] = U60[k++];
+        }
+        
+        return pos;
     }
     
     long max_prime = (long) sqrt(hi);
