@@ -1,11 +1,13 @@
 # prime-sieve
 
-Efficient implementations of the sieves of [Atkin](https://en.wikipedia.org/wiki/Sieve_of_Atkin) and [Eratosthenes](https://en.wikipedia.org/wiki/Sieve_of_Eratosthenes) in C. The algorithm used is based on the size of the input since the sieve of Erastosthenes is faster for N < 10<sup>8</sup>.
+Efficient implementations of the sieves of [Atkin](https://en.wikipedia.org/wiki/Sieve_of_Atkin) and [Eratosthenes](https://en.wikipedia.org/wiki/Sieve_of_Eratosthenes) in C. The algorithm used is based on the size of the input since the sieve of Erastosthenes is faster for N < 10<sup>8</sup>. Also contains a relatively optimized implementation of a segmented version of the sieve of Eratosthenes.
 
 # Usage
+Usage is of the form
 
-    ./prime_sieve 100
-    
+    ./prime_sieve [option] [args]
+
+where <i>option</i> is either or 0 or 1. 
 lists the primes under 100.
 
 # Reference
