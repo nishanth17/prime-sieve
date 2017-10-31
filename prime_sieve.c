@@ -6,24 +6,11 @@
 #include <immintrin.h>
 #include "primes.h"
 
-/* COMPILER FLAGS: gcc -O3 -fopenmp -msse4.2 -march=native -funroll-all-loops -Wa,-q prime_sieve.c -o prime_sieve
+/* COMPILER FLAGS: gcc -O3 -fopenmp -mavx -march=native -funroll-all-loops -Wa,-q prime_sieve.c -o prime_sieve
  
  NOTE: -> The -Wa,-q flag links gcc to the clang assembler since Apple's native llvm-gcc assembler doesn't
           support AVX instructions.
        -> The sieve of Atkin doesn't work for integers past MAX (~4 * 10^9 i.e. the limit of 32-bit integers).
-       -> Benchmarks were computed on a Macbook Pro w/ a core i7-7820HQ (2.9 GHz) processor and 16GB of RAM.
-       -> Benchmarks only measure the time taken to compute the primes and not print them..
- 
- BENCHMARKS   |  10^8  |   10^9   | 3.3*10^9 |  10^10    |  2*10^10  |  4*10^10
- --------------------------------------------------------------------------------
- Eratosthenes |  0.32s  |  4.66s  |  15.76s  |  47.89s   |  100.03s  |  228.13s
- Segmented    |  0.18s  |  1.81s  |   6.09s  |  18.22s   |  39.72s   |  86.26s
- Atkin        |  0.14s  |  1.36s  |   4.65s  |  Overflow |  Overflow |  Overflow
-
- 
- Reference: "Prime Sieves using Binary Quadratic Forms", A.O.L Atkin and D.J.Bernstein, Mathematics of
- Computation, 73-246: 1023-30,
- http://www.ams.org/journals/mcom/2004-73-246/S0025-5718-03-01501-1/S0025-5718-03-01501-1.pdf
  */
 
 #define MAX 3350000000l
@@ -471,13 +458,13 @@ int main(int argc, char** argv) {
         primes = (long*) calloc(num_primes_below(N), sizeof(long));
     
         gettimeofday(&start, NULL);
-        long t = prime_sieve(N, primes);
+        long t = sieve_of_eratosthenes(N, primes);
         gettimeofday(&end, NULL);
     
-        printf("\nPrimes below %lu:\n", N);
-        for (i = 0; i < t; i++) {
-            printf("%lu\n", primes[i]);
-        }
+//        printf("\nPrimes below %lu:\n", N);
+//        for (i = 0; i < t; i++) {
+//            printf("%lu\n", primes[i]);
+//        }
         printf("\nNumber of primes below %lu: %lu\n", N, t);
     } else if (option == 1) {
         long lo, hi, i;
@@ -495,10 +482,10 @@ int main(int argc, char** argv) {
             long t = segmented_sieve(lo, hi, primes);
             gettimeofday(&end, NULL);
             
-            printf("\nPrimes primes between %lu and %lu:\n", lo, hi);
-            for (i = 0; i < t; i++) {
-                printf("%lu\n", primes[i]);
-            }
+//            printf("\nPrimes primes between %lu and %lu:\n", lo, hi);
+//            for (i = 0; i < t; i++) {
+//                printf("%lu\n", primes[i]);
+//            }
             printf("Number of primes between %lu and %lu: %lu\n", lo, hi, t);
         }
     } else {
