@@ -397,7 +397,6 @@ long segmented_sieve(long lo, long hi, long* primes) {
     if (hi < 60) {
         long k = 0, pos = 0;
         while (U60[k++] < lo);
-        
         while(U60[k] <= hi) {
             primes[pos++] = U60[k++];
         }

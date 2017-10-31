@@ -22,11 +22,11 @@ lists the primes between 100 and 200.
 Benchmarks were computed using Macbook Pro with a core i7-7820HQ (2.9 GHz) processor and 16GB of RAM.
 
 
-| Benchmarks (in secs)   | 10<sup>8</sup> | 10<sup>9</sup> | 3.3 x 10<sup>9</sup> | 10<sup>10</sup> | 2 x 10<sup>10</sup> | 4 x 10<sup>10</sup> |
-|:--------------------   |---------------:|---------------:|---------------------:|----------------:|--------------------:|--------------------:|
-| Atkin                  | 0.14           | 1.22           | 4.35                 | Overflow        | Overflow            | Overflow            |
-| Segmented              | 0.18           | 1.77           | 6.09                 | 18.22           | 39.72               | 86.26               |
-| Eratosthenes           | 0.32           | 4.66           | 15.76                | 47.89           | 100.03              | 228.13              |
+| Benchmarks (in secs)   | 10<sup>8</sup> | 10<sup>9</sup> | 3.3 x 10<sup>9</sup> | 10<sup>10</sup> | 4 x 10<sup>10</sup> | 10<sup>11</sup> |
+|:--------------------   |---------------:|---------------:|---------------------:|----------------:|--------------------:|----------------:|
+| Atkin                  | 0.14           | 1.22           | 4.35                 | Overflow        | Untested            | Untested        |
+| Segmented              | 0.18           | 1.77           | 6.09                 | 18.22           | 86.26               | 228.04          |
+| Eratosthenes           | 0.32           | 4.66           | 15.76                | 47.89           | 228.13              | Untested        | 
 
 
 # References
