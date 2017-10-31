@@ -1,9 +1,9 @@
 # prime-sieve
 
-Efficient implementations of the sieves of [Atkin](https://en.wikipedia.org/wiki/Sieve_of_Atkin) and [Eratosthenes](https://en.wikipedia.org/wiki/Sieve_of_Eratosthenes) in C. The algorithm used is based on the size of the input since the sieve of Erastosthenes is faster for N < 10<sup>8</sup>. Also contains a relatively optimized implementation of a segmented version of the sieve of Eratosthenes.
+Efficient implementations of the [sieves](https://en.wikipedia.org/wiki/Generating_primes) of [Atkin](https://en.wikipedia.org/wiki/Sieve_of_Atkin) and [Eratosthenes](https://en.wikipedia.org/wiki/Sieve_of_Eratosthenes) in C. The algorithm used is based on the size of the input since the sieve of Erastosthenes is faster for N < 10<sup>8</sup>. Also contains a relatively optimized implementation of a segmented version of the sieve of Eratosthenes.
 
 # Usage
-This program requires AVX enabled and OpenMP. Usage is of the form
+This program requires AVX2 instructions enabled and OpenMP. Usage is of the form
 
     ./prime_sieve [option] [args]
 
