@@ -6,7 +6,7 @@
 #include <immintrin.h>
 #include "primes.h"
 
-/* COMPILER FLAGS: gcc -O3 -fopenmp -mavx -march=native -funroll-all-loops -Wa,-q prime_sieve.c -o prime_sieve
+/* COMPILER FLAGS: gcc -O3 -fopenmp -mavx2 -march=native -funroll-all-loops -Wa,-q prime_sieve.c -o prime_sieve
  
  NOTE: -> The -Wa,-q flag links gcc to the clang assembler since Apple's native llvm-gcc assembler doesn't
           support AVX instructions.
@@ -458,7 +458,7 @@ int main(int argc, char** argv) {
         primes = (long*) calloc(num_primes_below(N), sizeof(long));
     
         gettimeofday(&start, NULL);
-        long t = sieve_of_eratosthenes(N, primes);
+        long t = prime_sieve(N, primes);
         gettimeofday(&end, NULL);
     
         printf("\nPrimes below %lu:\n", N);
