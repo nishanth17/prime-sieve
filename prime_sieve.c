@@ -331,13 +331,12 @@ long sieve_of_atkin(long n, long* primes) {
             enum3(DFG3[i][1], DFG3[i][2], DFG3[i][0], L, B, segs);
         
         // Sieve off squareful numbers
+        #pragma omp parallel for private(j, d, x, p, p2, b, i)
         for (i = 0; i < len; i++) {
             p = base_primes[i];
             p2 = p * p;
             
-            if (p2 > limit)
-                break;
-            if (p > 6) {
+            if (p > 6 && p2 < limit) {
                 b = -extended_gcd(p2, 60);
                 if (b < 0)
                     b += p2;
