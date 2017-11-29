@@ -18,6 +18,10 @@
 #define LOWER_SEG_SIZE 65536l
 #define UPPER_SEG_SIZE 2097152l
 
+#define c2int(lo, k) (lo + (k << 1))
+#define set_sieve(sieve, k) (sieve[k >> 3] |= 1 << (k & 7))
+#define check_sieve(sieve, d) (((sieve[d >> 4] >> ((d >> 1) & 7)) & 1) == 0)
+
 typedef unsigned long long uint64_t;
 typedef long long int llu;
 typedef unsigned char byte;
@@ -387,21 +391,12 @@ long prime_sieve(long n, long* primes) {
 }
 
 /* A relativly simple segmented sieve of Eratosthenes to compute the primes between 'lo' and 'hi'
- * (both inclusive). Returns the number of primes between them and populates the 'primes' array.
- * This can probably be optimized further with a wheel modulo some primorial. */
+ * (both inclusive) using a wheel modulo 6. Returns the number of primes between them and
+ * populates the 'primes' array. This can probably be optimized further with a wheel modulo
+ * some primorial. */
 long segmented_sieve(long lo, long hi, long* primes) {
     if (hi < lo) {
         return 0;
-    }
-    
-    if (hi < 60) {
-        long k = 0, pos = 0;
-        while (U60[k++] < lo);
-        while(U60[k] <= hi) {
-            primes[pos++] = U60[k++];
-        }
-        
-        return pos;
     }
     
     long max_prime = (long) sqrt(hi);
@@ -418,39 +413,71 @@ long segmented_sieve(long lo, long hi, long* primes) {
         lo = max_prime;
     }
     
-    
     // Compute segment and interval size
     long delta = (hi - lo > UPPER_SEG_SIZE) ? UPPER_SEG_SIZE : LOWER_SEG_SIZE;
-    long l1 = num_base_primes, l = (delta >> 4) + 1, int_size = l << 3;
+    long l = (delta >> 4) + 1, int_size = l << 3;
     byte* sieve = calloc(l, sizeof(byte));
     __m256i zero = _mm256_setzero_si256();
     
     for (lo_1 = lo, hi_1 = lo + delta; lo_1 <= hi; lo_1 = hi_1 + 1, hi_1 += delta + 1) {
-        // Re-zero sieve bytes
+        // Re-zero sieve bytes when necessary
         if (lo_1 != lo) {
             for (k = 0; k < l; k += 32) {
                 _mm256_store_si256((__m256i*)&(sieve[k]), zero);
             }
         }
         
-        // Mark and sieve primes
         lo_1 = ((lo_1 & 1) == 0) ? lo_1 + 1 : lo_1;
-        for (i = 1; i < l1; i++) {
+        end = (hi_1 < hi) ? hi_1 : hi;
+        
+        // Mark and sieve primes
+        for (i = 2; i < num_base_primes; i++) {
             p = base_primes[i];
             k = (p - (lo_1 % p)) % p;
             k = ((k & 1) == 1) ? (k + p) >> 1 : k >> 1;
-            for (k = k; k < int_size; k += p) {
-                sieve[k >> 3] |= 1 << (k & 7);
+            
+            // Find closest multiple of p that = 1 (mod 6)
+            switch ((c2int(lo_1, k) / p) % 3) {
+                case 0:
+                    k += p;
+                case 2: {
+                    if (k < int_size && c2int(lo_1, k) < end)
+                        set_sieve(sieve, k);
+                    k += p;
+                    break;
+                }
+            }
+            
+            long twice_p = p << 1, step = twice_p + p;
+            for (; k < int_size && c2int(lo_1, k) < end; k += step) {
+                // Test 1 (mod 6)
+                set_sieve(sieve, k);
+                // Test (5 mod 6)
+                if (k + twice_p < int_size && c2int(lo_1, k + twice_p) < end)
+                    set_sieve(sieve, k + twice_p);
             }
         }
         
-        // Find primes
-        end = (hi_1 < hi) ? hi_1 : hi;
-        for (n = lo_1; n <= end; n += 2) {
-            d = n - lo_1;
-            if (((sieve[d >> 4] >> ((d >> 1) & 7)) & 1) == 0) {
-                primes[pos++] = n;
+        // Find primes - start by finding closest number to lo_1 that = 1 (mod 6)
+        long mod6 = lo_1 % 6;
+        n = lo_1;
+        if (mod6 <= 5 && mod6 >= 2) {
+            d = 5 - mod6;
+            if (lo_1 + d <= end && check_sieve(sieve, d)) {
+                primes[pos++] = lo_1 + d;
             }
+            n += d + 2;
+        } else if (mod6 == 0) {
+            n += 1;
+        }
+        
+        // Then check everything that = 1 or 5 (mod 6)
+        for (; n <= end; n += 6) {
+            d = n - lo_1;
+            if (check_sieve(sieve, d))
+                primes[pos++] = n;
+            if (n + 4 <= end && check_sieve(sieve, d+4))
+                primes[pos++] = n + 4;
         }
     }
     
@@ -473,10 +500,10 @@ int main(int argc, char** argv) {
         long t = prime_sieve(N, primes);
         gettimeofday(&end, NULL);
     
-        printf("\nPrimes below %lu:\n", N);
-        for (i = 0; i < t; i++) {
-            printf("%lu\n", primes[i]);
-        }
+//        printf("\nPrimes below %lu:\n", N);
+//        for (i = 0; i < t; i++) {
+//            printf("%lu\n", primes[i]);
+//        }
         printf("\nNumber of primes below %lu: %lu\n", N, t);
     } else if (option == 1) {
         long lo, hi, i;
@@ -494,10 +521,10 @@ int main(int argc, char** argv) {
             long t = segmented_sieve(lo, hi, primes);
             gettimeofday(&end, NULL);
             
-            printf("\nPrimes primes between %lu and %lu:\n", lo, hi);
-            for (i = 0; i < t; i++) {
-                printf("%lu\n", primes[i]);
-            }
+//            printf("\nPrimes primes between %lu and %lu:\n", lo, hi);
+//            for (i = 0; i < t; i++) {
+//                printf("%lu\n", primes[i]);
+//            }
             printf("Number of primes between %lu and %lu: %lu\n", lo, hi, t);
         }
     } else {

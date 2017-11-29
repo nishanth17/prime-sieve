@@ -25,7 +25,7 @@ Benchmarks were computed using Macbook Pro with a core i7-7820HQ (2.9 GHz) proce
 | Benchmarks (in secs)   | 10<sup>8</sup> | 10<sup>9</sup> | 3.3 x 10<sup>9</sup> | 10<sup>10</sup> | 4 x 10<sup>10</sup> | 10<sup>11</sup> |
 |:--------------------   |---------------:|---------------:|---------------------:|----------------:|--------------------:|----------------:|
 | Atkin                  | 0.14           | 1.22           | 4.35                 | Overflow        | Untested            | Untested        |
-| Segmented              | 0.18           | 1.77           | 6.09                 | 18.22           | 86.26               | 228.04          |
+| Segmented              | 0.15           | 1.39           | 4.63                 | 14.91           | 71.15               | 213.19          |
 | Eratosthenes           | 0.32           | 4.66           | 15.76                | 47.89           | 228.13              | Untested        | 
 
 
