@@ -500,10 +500,10 @@ int main(int argc, char** argv) {
         long t = prime_sieve(N, primes);
         gettimeofday(&end, NULL);
     
-//        printf("\nPrimes below %lu:\n", N);
-//        for (i = 0; i < t; i++) {
-//            printf("%lu\n", primes[i]);
-//        }
+       printf("\nPrimes below %lu:\n", N);
+       for (i = 0; i < t; i++) {
+           printf("%lu\n", primes[i]);
+       }
         printf("\nNumber of primes below %lu: %lu\n", N, t);
     } else if (option == 1) {
         long lo, hi, i;
@@ -521,10 +521,10 @@ int main(int argc, char** argv) {
             long t = segmented_sieve(lo, hi, primes);
             gettimeofday(&end, NULL);
             
-//            printf("\nPrimes primes between %lu and %lu:\n", lo, hi);
-//            for (i = 0; i < t; i++) {
-//                printf("%lu\n", primes[i]);
-//            }
+           printf("\nPrimes primes between %lu and %lu:\n", lo, hi);
+           for (i = 0; i < t; i++) {
+               printf("%lu\n", primes[i]);
+           }
             printf("Number of primes between %lu and %lu: %lu\n", lo, hi, t);
         }
     } else {
