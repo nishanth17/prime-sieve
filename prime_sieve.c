@@ -110,7 +110,7 @@ long num_primes_below(long n) {
     return num;
 }
 
-/* The extnded GCD algorithm. Returns a y such that ax + b = gcd(a, b) */
+/* The extended GCD algorithm. Returns y such that ax + by = gcd(a, b) */
 long extended_gcd(long a, long b) {
     long r = 0, s = 1;
     
@@ -127,7 +127,7 @@ long extended_gcd(long a, long b) {
     return r;
 }
 
-/* Sieve of Eratosthenes w/ wheel factorization.
+/* Sieve of Eratosthenes
  * Note that this function returns the number of primes below 'n' and
  * populates the 'primes' array. */
 long sieve_of_eratosthenes(long n, long* primes) {
@@ -167,7 +167,7 @@ long sieve_of_eratosthenes(long n, long* primes) {
     return pos;
 }
 
-/* Algorithm 4.1 : d < 60, f <= 15, g <= 30 such that d is congruent to 4f^2 + g^2(mod 60);
+/* Algorithm 3.1 : d < 60, f <= 15, g <= 30 such that d is congruent to 4f^2 + g^2(mod 60);
  * return all triples (x, y, k) with x > y > 0 and L <= k <= L + B such that
  * 4x^2 + y^2 = 60k + d */
 void enum1(long f, long g, long d, long L, long B, long** segs) {
@@ -200,7 +200,7 @@ void enum1(long f, long g, long d, long L, long B, long** segs) {
     }
 }
 
-/* Algorithm 4.2 : d < 60, f <= 10, g <= 30 such that d is congruent to 3f^2 + g^2(mod 60);
+/* Algorithm 3.2 : d < 60, f <= 10, g <= 30 such that d is congruent to 3f^2 + g^2(mod 60);
  * return all triples (x, y, k) with x > y > 0 and L <= k <= L + B such that
  * 3x^2 + y^2 = 60k + d */
 void enum2(long f, long g, long d, long L, long B, long** segs) {
@@ -233,7 +233,7 @@ void enum2(long f, long g, long d, long L, long B, long** segs) {
     }
 }
 
-/* Algorithm 4.3 : d < 60, f <= 10, g <= 30 such that d is congruent to 3f^2 - g^2(mod 60);
+/* Algorithm 3.3 : d < 60, f <= 10, g <= 30 such that d is congruent to 3f^2 - g^2(mod 60);
  * return all triples (x, y, k) with x > y > 0 and L <= k <= L + B such that
  * 3x^2 - y^2 = 60k + d */
 void enum3(long f, long g, long d, long L, long B, long** segs) {
