@@ -3,15 +3,16 @@
 #include <math.h>
 #include <omp.h>
 #include <time.h>
-#include <immintrin.h>
+#include <string.h> 
 #include "prime_sieve.h"
 
-/* COMPILER FLAGS: gcc -O3 -fopenmp -mavx2 -march=native -funroll-all-loops -Wa,-q prime_sieve.c -o prime_sieve
+/* COMPILER FLAGS: gcc -O3 -fopenmp -march=native -funroll-all-loops -Wa,-q prime_sieve.c -o prime_sieve
  
  NOTE: -> The -Wa,-q flag links gcc to the clang assembler since Apple's native llvm-gcc assembler doesn't
-          support AVX instructions.
+          support OpenMP instructions.
        -> The sieve of Atkin doesn't work for integers past MAX (~4 * 10^9 i.e. the limit of 32-bit integers).
  */
+ 
 
 #define MAX 3350000000l
 #define THRESHOLD 79000000l
@@ -309,8 +310,7 @@ long sieve_of_atkin(long n, long* primes) {
     
     long lim = n / 60l, L;
     long size = (B >> 5) + 1;
-    long p, p2, b, x, d, limit, j, lim1, base, s2 = (size >> 2) << 2;
-    __m256i zero = _mm256_setzero_si256();
+    long p, p2, b, x, d, limit, j, lim1, base;
     
     for (i = 0; i < 16; i++)
         segs[dAll[i]] = (long*) calloc(size, sizeof(long));
@@ -318,12 +318,9 @@ long sieve_of_atkin(long n, long* primes) {
     for (L = 1; L <= lim; L += B) {
         limit = 60 * (L + B);
         
-        #pragma omp parallel for private(i, j)
+        #pragma omp parallel for private(i)
         for (i = 0; i < 16; i++) {
-            for (j = 0; j < s2; j += 4)
-                _mm256_store_si256((__m256i*)&(segs[dAll[i]][j]), zero);
-            for (j = s2; j < size; j++)
-                segs[dAll[i]][j] = 0;
+            memset(segs[dAll[i]], 0, size * sizeof(long));
         }
         
         // Sieve off squarefree numbers
@@ -419,19 +416,15 @@ long segmented_sieve(long lo, long hi, long* primes) {
     long delta = (hi - lo > UPPER_SEG_SIZE) ? UPPER_SEG_SIZE : LOWER_SEG_SIZE;
     long l = (delta >> 4) + 1, int_size = l << 3;
     byte* sieve = calloc(l, sizeof(byte));
-    __m256i zero = _mm256_setzero_si256();
     
     for (lo_1 = lo, hi_1 = lo + delta; lo_1 <= hi; lo_1 = hi_1 + 1, hi_1 += delta + 1) {
         // Re-zero sieve bytes when necessary
         if (lo_1 != lo) {
-            for (k = 0; k < l; k += 32) {
-                _mm256_store_si256((__m256i*)&(sieve[k]), zero);
-            }
+            memset(sieve, 0, l);
         }
         
         lo_1 = ((lo_1 & 1) == 0) ? lo_1 + 1 : lo_1;
         end = (hi_1 < hi) ? hi_1 : hi;
-        
         // Mark and sieve primes
         for (i = 2; i < num_base_primes; i++) {
             p = base_primes[i];
