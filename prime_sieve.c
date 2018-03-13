@@ -158,7 +158,6 @@ long binary_search(long x, long* arr, long len) {
 }
 
 /* Sieve of Eratosthenes w/ wheel factorization.
->>>>>>> 3da0d219633e7ffc5c2e4737d361c26e5e598603
  * Note that this function returns the number of primes below 'n' and
  * populates the 'primes' array. */
 long sieve_of_eratosthenes(long n, long* primes) {
@@ -506,7 +505,7 @@ int main(int argc, char** argv) {
        printf("\nPrimes below %lu:\n", N);
        for (i = 0; i < t; i++) {
            printf("%lu\n", primes[i]);
-       }
+        }
         printf("\nNumber of primes below %lu: %lu\n", N, t);
     } else if (option == 1) {
         long lo, hi, i;
@@ -527,7 +526,7 @@ int main(int argc, char** argv) {
            printf("\nPrimes primes between %lu and %lu:\n", lo, hi);
            for (i = 0; i < t; i++) {
                printf("%lu\n", primes[i]);
-           }
+            }
             printf("Number of primes between %lu and %lu: %lu\n", lo, hi, t);
         }
     } else {
