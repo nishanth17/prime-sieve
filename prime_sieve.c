@@ -4,7 +4,7 @@
 #include <omp.h>
 #include <time.h>
 #include <immintrin.h>
-#include "primes.h"
+#include "prime_sieve.h"
 
 /* COMPILER FLAGS: gcc -O3 -fopenmp -mavx2 -march=native -funroll-all-loops -Wa,-q prime_sieve.c -o prime_sieve
  
@@ -16,7 +16,7 @@
 #define MAX 3350000000l
 #define THRESHOLD 79000000l
 #define LOWER_SEG_SIZE 65536l
-#define UPPER_SEG_SIZE 2097152l
+#define UPPER_SEG_SIZE 4194304l
 
 #define c2int(lo, k) (lo + (k << 1))
 #define set_sieve(sieve, k) (sieve[k >> 3] |= 1 << (k & 7))
@@ -502,8 +502,8 @@ int main(int argc, char** argv) {
         long t = prime_sieve(N, primes);
         gettimeofday(&end, NULL);
     
-       printf("\nPrimes below %lu:\n", N);
-       for (i = 0; i < t; i++) {
+        printf("\nPrimes below %lu:\n", N);
+        for (i = 0; i < t; i++) {
            printf("%lu\n", primes[i]);
         }
         printf("\nNumber of primes below %lu: %lu\n", N, t);
@@ -523,9 +523,9 @@ int main(int argc, char** argv) {
             long t = segmented_sieve(lo, hi, primes);
             gettimeofday(&end, NULL);
             
-           printf("\nPrimes primes between %lu and %lu:\n", lo, hi);
-           for (i = 0; i < t; i++) {
-               printf("%lu\n", primes[i]);
+            printf("\nPrimes primes between %lu and %lu:\n", lo, hi);
+            for (i = 0; i < t; i++) {
+               //printf("%lu\n", primes[i]);
             }
             printf("Number of primes between %lu and %lu: %lu\n", lo, hi, t);
         }
