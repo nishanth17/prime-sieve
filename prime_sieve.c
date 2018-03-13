@@ -16,7 +16,7 @@
 #define MAX 3350000000l
 #define THRESHOLD 79000000l
 #define LOWER_SEG_SIZE 65536l
-#define UPPER_SEG_SIZE 4194304l
+#define UPPER_SEG_SIZE 4194304l 
 
 #define c2int(lo, k) (lo + (k << 1))
 #define set_sieve(sieve, k) (sieve[k >> 3] |= 1 << (k & 7))
@@ -161,24 +161,23 @@ long binary_search(long x, long* arr, long len) {
 long sieve_of_eratosthenes(long n, long* primes) {
     omp_set_num_threads(omp_get_num_procs());
     long nn = (((n >> 1) - 1) >> 5) + 1;
-    long* arr = (long*) calloc(nn, sizeof(long));
+    long* sieve = (long*) calloc(nn, sizeof(long));
     long i, p, m, m2, ind, mm;
     
     #pragma omp parallel for
     for (i = 0; i < nn; i++)
-        arr[i] = 0xffffffff;
+        sieve[i] = 0xffffffff;
     
-    arr[nn - 1] = (1l << (((n >> 1) - 1) & 31)) - 1;
+    sieve[nn - 1] = (1l << (((n >> 1) - 1) & 31)) - 1;
     long sq = ((long) sqrt(n) - 3) >> 1;
-    
     for (p = 0; p <= sq; p++) {
-        if ((arr[p >> 5] & (1 << (p & 31))) != 0) {
+        if ((sieve[p >> 5] & (1 << (p & 31))) != 0) {
             m = (p << 1) + 3; m2 = m << 1;
             
             #pragma omp parallel for private(ind)
             for (mm = m * m; mm <= n; mm += m2) {
                 ind = (mm - 3) >> 1;
-                arr[ind >> 5] &= ~(1l << (ind & 31));
+                sieve[ind >> 5] &= ~(1l << (ind & 31));
             }
         }
     }
@@ -187,10 +186,12 @@ long sieve_of_eratosthenes(long n, long* primes) {
     long pos = 1;
     for (i = 0; i < nn; i++) {
         for (p = 0; p < 32; p++) {
-            if ((arr[i] & (1 << p)) != 0l)
+            if ((sieve[i] & (1 << p)) != 0l)
                 primes[pos++] = (((i << 5) | p) << 1) + 3;
         }
     }
+
+    free(sieve);
     
     return pos;
 }
@@ -375,6 +376,7 @@ long sieve_of_atkin(long n, long* primes) {
         continue;
     }
     
+    free(segs); free(base_primes);
     return pos;
 }
 
