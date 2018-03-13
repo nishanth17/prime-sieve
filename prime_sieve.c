@@ -102,7 +102,7 @@ long dAll[16] = { 1, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 49, 53, 59 }
 long U60[17] = { 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59 };
 
 /* Returns a rough estimate of the number of primes below n. Based on the
- Taylor expansion of the first 2 terms of the logarihtmic integral */
+ Taylor expansion of the first 2 terms of the logarithmic integral */
 long num_primes_below(long n) {
     long u = n + 32;
     double lu = log(u);
@@ -132,8 +132,6 @@ long extended_gcd(long a, long b) {
     return r;
 }
 
-/* Sieve of Eratosthenes
-=======
 /* Binary search to find the index of the least element greater than 'x' in 'arr' */
 long binary_search(long x, long* arr, long len) {
     if (x < arr[0]) {
