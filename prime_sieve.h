@@ -1,5 +1,5 @@
-#ifndef _primes_h
-#define _primes_h
+#ifndef PRIME_SIEVE_H
+#define PRIME_SIEVE_H
 
 long num_primes_below(long n);
 
