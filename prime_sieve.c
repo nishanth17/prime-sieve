@@ -525,7 +525,7 @@ int main(int argc, char** argv) {
             
             printf("\nPrimes primes between %lu and %lu:\n", lo, hi);
             for (i = 0; i < t; i++) {
-               //printf("%lu\n", primes[i]);
+               printf("%lu\n", primes[i]);
             }
             printf("Number of primes between %lu and %lu: %lu\n", lo, hi, t);
         }
