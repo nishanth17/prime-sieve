@@ -10,14 +10,15 @@
  
  NOTE: -> The -Wa,-q flag links gcc to the clang assembler since Apple's native llvm-gcc assembler doesn't
           support OpenMP instructions.
-       -> The sieve of Atkin doesn't work for integers past MAX (~4 * 10^9 i.e. the limit of 32-bit integers).
+    -> The sieve of Atkin doesn't work for integers past MAX (~4 * 10^9 i.e. the limit of 32-bit integers).
  */
  
+#define ERAT_MAX 79000000l
+#define ATKIN_MAX 3350000000l
 
-#define MAX 3350000000l
-#define THRESHOLD 79000000l
-#define LOWER_SEG_SIZE 65536l
-#define UPPER_SEG_SIZE 4194304l 
+#define ERAT_SMALL_SEG_SIZE 65536l
+#define ERAT_LARGE_SEG_SIZE 4194304l 
+#define ATKIN_SEG_SIZE 1048576l
 
 #define c2int(lo, k) (lo + (k << 1))
 #define set_sieve(sieve, k) (sieve[k >> 3] |= 1 << (k & 7))
@@ -116,7 +117,7 @@ long num_primes_between(long lo, long hi) {
     return num_primes_below(hi) - num_primes_below(lo);
 }
 
-/* The extnded GCD algorithm. Returns a y such that ax + b = gcd(a, b) */
+/* The extended GCD algorithm. Returns y such that ax + by = gcd(a, b) */
 long extended_gcd(long a, long b) {
     long r = 0, s = 1;
     
@@ -193,7 +194,6 @@ long sieve_of_eratosthenes(long n, long* primes) {
     }
 
     free(sieve);
-    
     return pos;
 }
 
@@ -303,28 +303,38 @@ long sieve_of_atkin(long n, long* primes) {
         primes[pos++] = U60[i];
     }
     
-    long B = 60 * ((long) sqrt(n));
-    long* base_primes = (long*)calloc(num_primes_below(sqrt(n)), sizeof(long));
+    long B = ATKIN_SEG_SIZE;
+    long* base_primes = (long*) calloc(num_primes_below(sqrt(n)), sizeof(long));
     len = sieve_of_eratosthenes((long) sqrt(n), base_primes);
     long** segs = (long**) malloc(sizeof(long*) * 60);
-    
+    long p, p2, b, x, d, limit, j, lim1, base;
+
+    // Precompute modular inverses
+    long* px = (long*) malloc(len * sizeof(long));
+    #pragma omp parallel for private(x, p2)
+    for (i = 0; i < len; i++) {
+        p2 = base_primes[i] * base_primes[i];
+        x = -extended_gcd(p2, 60);
+        if (x < 0)
+            x += p2;
+        px[i] = x;
+    }
+  
     long lim = n / 60l, L;
     long size = (B >> 5) + 1;
-    long p, p2, b, x, d, limit, j, lim1, base;
-    
     for (i = 0; i < 16; i++)
         segs[dAll[i]] = (long*) calloc(size, sizeof(long));
     
     for (L = 1; L <= lim; L += B) {
         limit = 60 * (L + B);
         
-        #pragma omp parallel for private(i)
+        #pragma omp parallel for
         for (i = 0; i < 16; i++) {
             memset(segs[dAll[i]], 0, size * sizeof(long));
         }
         
         // Sieve off squarefree numbers
-        #pragma omp parallel for private(i)
+        #pragma omp parallel for
         for (i = 0; i < 128; i++)
             enum1(DFG1[i][1], DFG1[i][2], DFG1[i][0], L, B, segs);
         for (i = 0; i < 48; i++)
@@ -337,11 +347,8 @@ long sieve_of_atkin(long n, long* primes) {
         for (i = 0; i < len; i++) {
             p = base_primes[i];
             p2 = p * p;
-            
             if (p > 6 && p2 < limit) {
-                b = -extended_gcd(p2, 60);
-                if (b < 0)
-                    b += p2;
+                b = px[i];
                 for (j = 0; j < 16; j++) {
                     d = dAll[j];
                     x = b * (60 * L + d);
@@ -373,20 +380,8 @@ long sieve_of_atkin(long n, long* primes) {
         continue;
     }
     
-    free(segs); free(base_primes);
+    //free(segs); free(base_primes); free(px);
     return pos;
-}
-
-/* This function returns the number of primes below 'n' and populates the
- * 'primes' array. */
-long prime_sieve(long n, long* primes) {
-    if (n < THRESHOLD)
-        return sieve_of_eratosthenes(n, primes);
-    else if (n <= MAX) {
-        return sieve_of_atkin(n, primes);
-    } else {
-        return segmented_sieve(2, n, primes);
-    }
 }
 
 /* A relativly simple segmented sieve of Eratosthenes to compute the primes between 'lo' and 'hi'
@@ -413,7 +408,7 @@ long segmented_sieve(long lo, long hi, long* primes) {
     }
     
     // Compute segment and interval size
-    long delta = (hi - lo > UPPER_SEG_SIZE) ? UPPER_SEG_SIZE : LOWER_SEG_SIZE;
+    long delta = (hi - lo > ERAT_LARGE_SEG_SIZE) ? ERAT_LARGE_SEG_SIZE : ERAT_SMALL_SEG_SIZE;
     long l = (delta >> 4) + 1, int_size = l << 3;
     byte* sieve = calloc(l, sizeof(byte));
     
@@ -476,10 +471,21 @@ long segmented_sieve(long lo, long hi, long* primes) {
         }
     }
     
-    free(base_primes); free(sieve);
+    free(base_primes); free(sieve); 
     return pos;
 }
 
+/* This function returns the number of primes below 'n' and populates the
+ * 'primes' array. */
+long prime_sieve(long n, long* primes) {
+    if (n < ERAT_MAX)
+        return sieve_of_eratosthenes(n, primes);
+    else if (n <= ATKIN_MAX) {
+        return sieve_of_atkin(n, primes);
+    } else {
+        return segmented_sieve(2, n, primes);
+    }
+}
 
 int main(int argc, char** argv) {
     struct timeval start, end;
@@ -492,13 +498,13 @@ int main(int argc, char** argv) {
         primes = (long*) calloc(num_primes_below(N), sizeof(long));
     
         gettimeofday(&start, NULL);
-        long t = prime_sieve(N, primes);
+        long t = sieve_of_atkin(N, primes);
         gettimeofday(&end, NULL);
     
-        printf("\nPrimes below %lu:\n", N);
-        for (i = 0; i < t; i++) {
-           printf("%lu\n", primes[i]);
-        }
+        // printf("\nPrimes below %lu:\n", N);
+        // for (i = 0; i < t; i++) {
+        //    printf("%lu\n", primes[i]);
+        // }
         printf("\nNumber of primes below %lu: %lu\n", N, t);
     } else if (option == 1) {
         long lo, hi, i;
