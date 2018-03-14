@@ -10,10 +10,9 @@
  
  NOTE: -> The -Wa,-q flag links gcc to the clang assembler since Apple's native llvm-gcc assembler doesn't
           support OpenMP instructions.
-    -> The sieve of Atkin doesn't work for integers past MAX (~4 * 10^9 i.e. the limit of 32-bit integers).
  */
  
-#define ERAT_MAX 79000000l
+#define ERAT_MAX 10000000l
 #define ATKIN_MAX 25000000000l
 
 #define ERAT_SMALL_SEG_SIZE 65536l
