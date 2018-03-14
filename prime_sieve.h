@@ -1,6 +1,9 @@
 #ifndef PRIME_SIEVE_H
 #define PRIME_SIEVE_H
 
+typedef unsigned char byte;
+typedef unsigned long long uint64_t;
+
 long num_primes_below(long n);
 
 long sieve_of_eratosthenes(long n, long* primes);

@@ -14,7 +14,7 @@
  */
  
 #define ERAT_MAX 79000000l
-#define ATKIN_MAX 3350000000l
+#define ATKIN_MAX 25000000000l
 
 #define ERAT_SMALL_SEG_SIZE 65536l
 #define ERAT_LARGE_SEG_SIZE 4194304l 
@@ -23,10 +23,6 @@
 #define c2int(lo, k) (lo + (k << 1))
 #define set_sieve(sieve, k) (sieve[k >> 3] |= 1 << (k & 7))
 #define check_sieve(sieve, d) (((sieve[d >> 4] >> ((d >> 1) & 7)) & 1) == 0)
-
-typedef unsigned long long uint64_t;
-typedef long long int llu;
-typedef unsigned char byte;
 
 long DFG1[128][3] = { { 1, 0, 1 }, { 1, 0, 11 }, { 1, 0, 19 },
     { 1, 0, 29 }, { 1, 2, 15 }, { 1, 3, 5 }, { 1, 3, 25 }, { 1, 5, 9 },
@@ -351,7 +347,7 @@ long sieve_of_atkin(long n, long* primes) {
                 b = px[i];
                 for (j = 0; j < 16; j++) {
                     d = dAll[j];
-                    x = b * (60 * L + d);
+                    x = (((b * L) % p2) * 60) + (b * d);
                     if (x > p2)
                         x %= p2;
                     for (x = x; x < B; x += p2) {
@@ -380,7 +376,7 @@ long sieve_of_atkin(long n, long* primes) {
         continue;
     }
     
-    //free(segs); free(base_primes); free(px);
+    free(segs); free(base_primes); free(px);
     return pos;
 }
 
@@ -501,10 +497,10 @@ int main(int argc, char** argv) {
         long t = sieve_of_atkin(N, primes);
         gettimeofday(&end, NULL);
     
-        // printf("\nPrimes below %lu:\n", N);
-        // for (i = 0; i < t; i++) {
-        //    printf("%lu\n", primes[i]);
-        // }
+        printf("\nPrimes below %lu:\n", N);
+        for (i = 0; i < t; i++) {
+           printf("%lu\n", primes[i]);
+        }
         printf("\nNumber of primes below %lu: %lu\n", N, t);
     } else if (option == 1) {
         long lo, hi, i;
