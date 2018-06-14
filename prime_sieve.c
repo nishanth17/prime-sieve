@@ -9,14 +9,14 @@
 /* COMPILER FLAGS: gcc -O3 -fopenmp -march=native -funroll-all-loops -Wa,-q prime_sieve.c -o prime_sieve
  
  NOTE: -> The -Wa,-q flag links gcc to the clang assembler since Apple's native llvm-gcc assembler doesn't
-          support OpenMP instructions.
+          support vmovsd, vsidsd, and other similar instructions.
  */
  
 #define ERAT_MAX 10000000l
 #define ATKIN_MAX 25000000000l
 
 #define ERAT_SMALL_SEG_SIZE 65536l
-#define ERAT_LARGE_SEG_SIZE 4194304l 
+#define ERAT_LARGE_SEG_SIZE 4194304l
 #define ATKIN_SEG_SIZE 1048576l
 
 #define c2int(lo, k) (lo + (k << 1))
@@ -152,7 +152,7 @@ long binary_search(long x, long* arr, long len) {
     return l;
 }
 
-/* Sieve of Eratosthenes w/ wheel factorization.
+/* Sieve of Eratosthenes
  * Note that this function returns the number of primes below 'n' and
  * populates the 'primes' array. */
 long sieve_of_eratosthenes(long n, long* primes) {
